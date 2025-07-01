@@ -4,21 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="37ab1165-fb05-4dd3-90af-afcb6e9df15b" name="Changes" comment="Создание модуля classes, где находять классы Product и Category, созданы тесты для них. Также описаны функции в файле README.md">
-      <change afterPath="$PROJECT_DIR$/.coverage" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.flake8" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/products.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/classes.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/test_classes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+    <list default="true" id="37ab1165-fb05-4dd3-90af-afcb6e9df15b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignor" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +48,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "develop",
+    "git-widget-placeholder": "#1 on develop",
     "last_opened_file_path": "C:/Users/sveta/PycharmProjects/OOP_frog",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -149,8 +137,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.test_classes" />
-        <item itemvalue="Python.classes" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.classes" />
+        <item itemvalue="Python.test_classes" />
+        <item itemvalue="Python.classes" />
       </list>
     </recent_temporary>
   </component>
