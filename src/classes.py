@@ -1,5 +1,6 @@
 import json
 
+
 class Product:
     def __init__(self, name, description, price, quantity):
         """Создаение атрибутов для данного класса"""
@@ -22,6 +23,7 @@ class Category:
         Category.category_count += 1
         Category.product_count += len(self.products)
 
+
 def load_file_from_json(filepath):
     """Загрузка категорий из JSON-файла"""
     with open(filepath) as f:
@@ -40,10 +42,14 @@ def load_file_from_json(filepath):
                 product_price = products_data["price"]
                 product_quantity = products_data["quantity"]
 
-                product_object = Product(products_name, products_description, product_price, product_quantity)
+                product_object = Product(
+                    products_name, products_description, product_price, product_quantity
+                )
                 products_in_this_category.append(product_object)
 
-            category_object = Category(category_name, category_description, products_in_this_category)
+            category_object = Category(
+                category_name, category_description, products_in_this_category
+            )
             all_category_object.append(category_object)
 
             return all_category_object

@@ -4,6 +4,7 @@ import pytest
 
 from src.classes import Category, Product, load_file_from_json
 
+
 @pytest.fixture
 def product_category():
     """Фикстура для тестирования счетчиков категорий и продуктов"""
@@ -83,7 +84,7 @@ def mock_json_data():
     [
       {
         "name": "Смартфоны",
-        "description": "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни",
+        "description": "Смартфоны, для удобства жизни",
         "products": [
           {
             "name": "Samsung Galaxy S25 Ultra",
@@ -101,7 +102,7 @@ def mock_json_data():
       },
       {
         "name": "Телевизоры",
-        "description": "Современный телевизор, который позволяет наслаждаться просмотром, станет вашим другом и помощником",
+        "description": "Современный телевизор, позволяет наслаждаться просмотром",
         "products": [
           {
             "name": "55\\\" QLED 4K",
@@ -123,9 +124,9 @@ def test_load_file_from_json_success(mocker, mock_json_data):
     Category.category_count = 0
     Category.product_count = 0
 
-    mocker.patch('builtins.open', mocker.mock_open(read_data=mock_json_data))
+    mocker.patch("builtins.open", mocker.mock_open(read_data=mock_json_data))
 
-    loaded_categories = load_file_from_json('dummy_path.json')
+    loaded_categories = load_file_from_json("dummy_path.json")
 
     assert len(loaded_categories) == 1
 
@@ -134,7 +135,10 @@ def test_load_file_from_json_success(mocker, mock_json_data):
 
     category_smartphones = loaded_categories[0]
     assert category_smartphones.name == "Смартфоны"
-    assert category_smartphones.description == "Смартфоны, как средство не только коммуникации, но и получения дополнительных функций для удобства жизни"
+    assert (
+        category_smartphones.description
+        == "Смартфоны, для удобства жизни"
+    )
     assert len(category_smartphones.products) == 2
 
     samsung = category_smartphones.products[0]
@@ -147,7 +151,7 @@ def test_load_file_from_json_success(mocker, mock_json_data):
     assert len(category_tvs.products) == 2
 
     qled_tv = category_tvs.products[0]
-    assert qled_tv.name == 'Samsung Galaxy S25 Ultra'
+    assert qled_tv.name == "Samsung Galaxy S25 Ultra"
     assert qled_tv.price == 180000.0
 
 
@@ -157,21 +161,21 @@ def test_load_file_from_json_file_not_found(mocker):
     Category.product_count = 0
 
     with pytest.raises(FileNotFoundError):
-        load_file_from_json('non_existent_file.json')
+        load_file_from_json("non_existent_file.json")
 
     assert Category.category_count == 0
     assert Category.product_count == 0
+
 
 def test_load_file_from_json_malformed_json(mocker):
     """Тестирует случай с некорректным JSON-файлом."""
     Category.category_count = 0
     Category.product_count = 0
 
-    mocker.patch('builtins.open', mocker.mock_open(read_data='{"invalid json"'))
+    mocker.patch("builtins.open", mocker.mock_open(read_data='{"invalid json"'))
 
     with pytest.raises(json.JSONDecodeError):
-        load_file_from_json('malformed.json')
+        load_file_from_json("malformed.json")
 
     assert Category.category_count == 0
     assert Category.product_count == 0
-
