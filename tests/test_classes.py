@@ -2,7 +2,8 @@ import json
 
 import pytest
 
-from src.classes import Category, Product, load_file_from_json
+from src.classes import Category, Product
+from src.load_json_file import load_file_from_json
 
 
 @pytest.fixture
