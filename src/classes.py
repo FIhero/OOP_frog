@@ -57,6 +57,9 @@ class Category:
 
     def add_product(self, product):
         """Добавление продукта в категорию"""
+        if not isinstance(product, Product):
+            raise TypeError("Можно добавлять только объекты класса Product")
+
         for product_ in self.__products:
             if product_.name == product.name:
                 product_.quantity += product.quantity

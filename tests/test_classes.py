@@ -92,6 +92,13 @@ def product_data_for_new_product():
     return product_data
 
 
+@pytest.fixture
+def empty_category():
+    """Фикстура для пустой категории"""
+    Category.product_count = 0
+    return Category("Юмор", "Смешные цены на несмешные товары", [])
+
+
 @pytest.mark.parametrize(
     "name, description, price, quantity",
     [
@@ -185,6 +192,29 @@ def test_add_product_merge_duplicate(product_category):
     assert category._Category__products[4].name == "Nokia Clear Phone"
     assert category._Category__products[4].quantity == 10
     assert category._Category__products[4].price == 50000.0
+
+
+def test_type_error_in_add_product(empty_category):
+    """Тестирует ошибку в add_product"""
+    category = empty_category
+    with pytest.raises(
+        TypeError, match="Можно добавлять только объекты класса Product"
+    ):
+        category.add_product("Строка грусти")
+
+    with pytest.raises(
+        TypeError, match="Можно добавлять только объекты класса Product"
+    ):
+        category.add_product(556)
+
+    with pytest.raises(
+        TypeError, match="Можно добавлять только объекты класса Product"
+    ):
+        category.add_product(
+            ["Пришельцы", "захватят", "этот", "мир", "(молимся пока не поздно)"]
+        )
+    assert len(category._Category__products) == 0
+    assert Category.product_count == 0
 
 
 def test_load_file_from_json_success(mocker, mock_json_data):
