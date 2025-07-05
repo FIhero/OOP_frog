@@ -1,5 +1,7 @@
 import json
-from src.classes import Product, Category
+
+from src.classes import Category, Product
+
 
 def load_file_from_json(filepath):
     """Загрузка категорий из JSON-файла"""
