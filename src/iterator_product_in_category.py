@@ -1,5 +1,6 @@
 from src.classes import Category
 
+
 class CategoryProductIterator:
     def __init__(self, category_object: Category):
         self.category_object = category_object

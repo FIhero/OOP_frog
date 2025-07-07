@@ -93,8 +93,8 @@ class Category:
             current_total += self.__products[i].price * self.__products[i].quantity
         return current_total
 
-
     def __iter__(self):
         """Метод делает объекст Category итерируемым для CategoryProductIterator"""
         from src.iterator_product_in_category import CategoryProductIterator
+
         return CategoryProductIterator(self)

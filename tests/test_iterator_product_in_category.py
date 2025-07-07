@@ -1,6 +1,8 @@
+import pytest
+
 from src.classes import Category, Product
 from src.iterator_product_in_category import CategoryProductIterator
-import pytest
+
 
 @pytest.fixture
 def product_category():
@@ -59,6 +61,7 @@ def category_product_iterator_older_and_coantent(product_category):
 
     assert actual_product_from_iterator == c_one
     assert len(actual_product_from_iterator) == len(c_one)
+
 
 def test_stop_iteration(product_category):
     """Тестирует корректность вывода StopIteration"""
