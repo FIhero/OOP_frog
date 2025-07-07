@@ -41,6 +41,17 @@ class Product:
         else:
             self.__price = new_price
 
+    def __str__(self):
+        """Строка информации продукта"""
+        return f"{self.name}, {self.price} руб. Остаток: {self.quantity} шт.\n"
+
+    def __add__(self, other):
+        """Считает общую цену на складе"""
+        if not isinstance(other, Product):
+            raise TypeError("Можно складывать только объекты класса Product")
+
+        return (self.price * self.quantity) + (other.price * other.quantity)
+
 
 class Category:
     category_count = 0
@@ -69,11 +80,21 @@ class Category:
             self.__products.append(product)
             Category.product_count += 1
 
-    @property
-    def products(self):
-        """Геттер для атрибута __products. Возвращает строку со всеми продуктами"""
-        all_products_info = []
-        for product in self.__products:
-            list_of_products = f"{product.name}, {product.price} руб. Остаток: {product.quantity} шт.\n"
-            all_products_info.append(list_of_products)
-        return "".join(all_products_info)
+    def __str__(self):
+        """Строка информации категории"""
+        total_quantity = sum(product.quantity for product in self.__products)
+        return f"{self.name}, количество продуктов: {total_quantity} шт."
+
+    def get_total_stock_value(self):
+        if not self.__products:
+            return 0
+        current_total = 0
+        for i in range(0, len(self.__products)):
+            current_total += self.__products[i].price * self.__products[i].quantity
+        return current_total
+
+
+    def __iter__(self):
+        """Метод делает объекст Category итерируемым для CategoryProductIterator"""
+        from src.iterator_product_in_category import CategoryProductIterator
+        return CategoryProductIterator(self)

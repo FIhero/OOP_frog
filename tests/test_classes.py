@@ -135,20 +135,50 @@ def test_counts_product_category(product_category):
     assert Category.product_count == len(product_list)
 
 
-def test_add_product_and_privat_access(product_category):
+def test_product_information_output(product_category):
+    """
+    Тест вывода информационной строки о продукте
+    (Product.__str__)
+    """
     product_list, _ = product_category
-    Category.category_count = 0
-    Category.product_count = 0
-    category = Category("Смартфоны", "Качественные и крутые только у нас!", [])
-    for i, product in enumerate(product_list):
-        category.add_product(product)
-    assert category.products == (
-        "Samsung Galaxy S25 Ultra, 180000.0 руб. Остаток: 5 шт.\n"
-        "Iphone 16, 210000.0 руб. Остаток: 8 шт.\n"
-        "Xiaomi Redmi Note 11, 31000.0 руб. Остаток: 14 шт.\n"
-        '55" QLED 4K, 123000.0 руб. Остаток: 7 шт.\n'
-    )
-    assert category.product_count == len(product_list)
+    one, two, three, four = product_list
+
+    assert one.__str__() == ("Samsung Galaxy S25 Ultra, 180000.0 руб. Остаток: 5 шт.\n")
+    assert two.__str__() == ("Iphone 16, 210000.0 руб. Остаток: 8 шт.\n")
+    assert three.__str__() == ("Xiaomi Redmi Note 11, 31000.0 руб. Остаток: 14 шт.\n")
+    assert four.__str__() == ('55" QLED 4K, 123000.0 руб. Остаток: 7 шт.\n')
+
+
+def test_total_price_of_products(product_category):
+    """
+    Тестирует общую, суммарную стоимость товаров на складе
+    (get_total_stock_value)
+    """
+    product_list, _ = product_category
+    category = Category("Смартфоны", "Описание смартфонов", product_list)
+
+    assert category.get_total_stock_value() == 3875000.0
+
+
+def test_nothing_price_of_products():
+    """
+    Тестирует если на складе ничего нет
+    (get_total_stock_value)
+    """
+    category = Category("Цигане", "Описание циганов", [])
+    assert category.get_total_stock_value() == 0
+
+
+def test_category_information_output(product_category):
+    """
+    Тест вывода информационной строки о категории
+    (Category.__str__)
+    """
+    _, category_list = product_category
+    one, two = category_list
+
+    assert one.__str__() == ("Смартфоны, количество продуктов: 27 шт.")
+    assert two.__str__() == ("Телевизоры, количество продуктов: 7 шт.")
 
 
 def test_add_product_merge_duplicate(product_category):
@@ -321,7 +351,10 @@ def test_new_product_classmethod(product_data_for_new_product):
     ],
 )
 def test_price_list(name, description, price, quantity, expected, mail, capsys):
-    """Тестирует сеттер price_list"""
+    """
+    Тестирует корректность работы сеттера
+    (price.setter)
+    """
     data = Product(name, description, price, quantity)
     assert data.price == expected
 
@@ -333,7 +366,10 @@ def test_price_list(name, description, price, quantity, expected, mail, capsys):
 
 
 def test_y_n_price(capsys, mocker):
-    """Проверка сообщений ответа на вопрос в сеттер"""
+    """
+    Проверка сообщений ответа на вопрос в сеттер
+    (price.setter)
+    """
     product = Product(
         "Американский M1 Abrams",
         "У америкосов плохие танки, лучше купите РУССКИЕ!",
@@ -361,3 +397,39 @@ def test_y_n_price(capsys, mocker):
     assert product.price == new_price
     captured = capsys.readouterr()
     assert f"Цена снижена до {new_price} руб." in captured.out
+
+
+def test_product_add_type_error():
+    """
+    Тестирует вывод сообщения при неправильном вводе
+    (Product.__add__)
+    """
+    pro = Product("Что-то там", "О чем-то шепчет", 5, 9)
+    with pytest.raises(
+        TypeError, match="Можно складывать только объекты класса Product"
+    ):
+        _ = pro + 88005553535
+
+    with pytest.raises(
+        TypeError, match="Можно складывать только объекты класса Product"
+    ):
+        _ = pro + "Кто вы такие?" + "Мы друзья лунтика!"
+
+
+def test_function__add__in_product(product_category):
+    """
+    Тестирует метод __add__
+    (Product.__add__)
+    """
+    product_list, _ = product_category
+    one, two, three, four = product_list
+
+    exp1 = one.price * one.quantity
+    exp2 = two.price * two.quantity
+    exp3 = three.price * three.quantity
+    exp4 = four.price * four.quantity
+
+    assert (one + two) == exp1 + exp2
+    assert (two + three) == exp2 + exp3
+    assert (three + four) == exp3 + exp4
+    assert (four + one) == exp4 + exp1
