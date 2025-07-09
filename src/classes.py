@@ -50,7 +50,47 @@ class Product:
         if not isinstance(other, Product):
             raise TypeError("Можно складывать только объекты класса Product")
 
+        if type(self) is not type(other):
+            raise TypeError("Можно складывать товары только одного и того же класса")
+
         return (self.price * self.quantity) + (other.price * other.quantity)
+
+
+class Smartphone(Product):
+    def __init__(
+        self, name, description, price, quantity, efficiency, model, memory, color
+    ):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+    def __str__(self):
+        """Строка информации"""
+        info = super().__str__()
+        return (
+            f"{info}{self.description}\nМодель: {self.model}\nЯдро: {self.efficiency}"
+            f"\nОбъем памяти: {self.memory} GB\nЦвет: {self.color}\n"
+        )
+
+
+class LawnGrass(Product):
+    def __init__(
+        self, name, description, price, quantity, country, germination_period, color
+    ):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
+
+    def __str__(self):
+        """Строка информации"""
+        info = super().__str__()
+        return (
+            f"{info}{self.description}\nСтрана производитель: {self.country}"
+            f"\nСрок службы: {self.germination_period} год\nЦвет: {self.color}\n"
+        )
 
 
 class Category:
@@ -69,7 +109,14 @@ class Category:
     def add_product(self, product):
         """Добавление продукта в категорию"""
         if not isinstance(product, Product):
-            raise TypeError("Можно добавлять только объекты класса Product")
+            raise TypeError(
+                "Можно добавлять только объекты класса Product или его наследников"
+            )
+
+        if product.quantity < 1:
+            raise ValueError(
+                "Товар с нулевым или отрицательным количеством не может быть добавлен"
+            )
 
         for product_ in self.__products:
             if product_.name == product.name:
