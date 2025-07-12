@@ -112,7 +112,7 @@ def test_product(name, description, price, quantity):
     product = Product(name, description, price, quantity)
     assert product.name == name
     assert product.description == description
-    assert product._Product__price == price
+    assert product._price == price
     assert product.quantity == quantity
 
 
@@ -271,7 +271,7 @@ def test_load_file_from_json_success(mocker, mock_json_data):
 
     samsung = category_smartphones._Category__products[0]
     assert samsung.name == "Samsung Galaxy S25 Ultra"
-    assert samsung._Product__price == 180000.0
+    assert samsung._price == 180000.0
     assert samsung.quantity == 5
 
     category_tvs = loaded_categories[0]
@@ -280,7 +280,7 @@ def test_load_file_from_json_success(mocker, mock_json_data):
 
     qled_tv = category_tvs._Category__products[0]
     assert qled_tv.name == "Samsung Galaxy S25 Ultra"
-    assert qled_tv._Product__price == 180000.0
+    assert qled_tv._price == 180000.0
 
 
 def test_load_file_from_json_file_not_found():
@@ -316,7 +316,7 @@ def test_new_product_classmethod(product_data_for_new_product):
     assert isinstance(new_product_instance, Product)
     assert new_product_instance.name == data["name"]
     assert new_product_instance.description == data["description"]
-    assert new_product_instance._Product__price == data["price"]
+    assert new_product_instance._price == data["price"]
     assert new_product_instance.quantity == data["quantity"]
 
 
@@ -362,7 +362,11 @@ def test_price_list(name, description, price, quantity, expected, mail, capsys):
     if mail:
         assert mail in captured.out
     else:
-        assert captured.out == ""
+        assert "Создан объект класса: Product" in captured.out
+        assert (
+            "Параметры: Позиционные: ('Российский Т-90', 'Лучший народный танк! Сделан в РОССИИ!', 2500000, 500), "
+            "Именнованные: {}" in captured.out
+        )
 
 
 def test_y_n_price(capsys, mocker):

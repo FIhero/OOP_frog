@@ -1,11 +1,30 @@
-class Product:
+from abc import ABC, abstractmethod
+
+
+class BaseProduct(ABC):
     def __init__(self, name, description, price, quantity):
-        """Создаение атрибутов для данного класса"""
         self.name = name
         self.description = description
-        self.__price = 0.0
+        self._price = 0.0
         self.price = price
         self.quantity = quantity
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+
+class CreationLogMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print(f"Создан объект класса: {self.__class__.__name__}")
+        print(f"Параметры: Позиционные: {args}, Именнованные: {kwargs}\n")
+
+
+class Product(CreationLogMixin, BaseProduct):
+    def __init__(self, name, description, price, quantity):
+        """Создаение атрибутов для данного класса"""
+        super().__init__(name, description, price, quantity)
 
     @classmethod
     def new_product(cls, product_data: dict) -> "Product":
@@ -19,16 +38,16 @@ class Product:
 
     @property
     def price(self):
-        return self.__price
+        return self._price
 
     @price.setter
     def price(self, new_price):
         if new_price <= 0:
             print("Цена не должна быть нулевая или отрицательная")
-        elif self.__price > new_price:
+        elif self._price > new_price:
             approval = input("Вы уверены что хотите снизить цену?(y/n):").lower()
             if approval == "y":
-                self.__price = new_price
+                self._price = new_price
                 print(f"Цена снижена до {new_price} руб.")
 
             elif approval == "n":
@@ -39,7 +58,7 @@ class Product:
                     "Неправильно введено значение(yes - y/n - no). Снижение цены отменено"
                 )
         else:
-            self.__price = new_price
+            self._price = new_price
 
     def __str__(self):
         """Строка информации продукта"""
@@ -93,7 +112,13 @@ class LawnGrass(Product):
         )
 
 
-class Category:
+class BaseShopEntity(ABC):
+    @abstractmethod
+    def __str__(self):
+        pass
+
+
+class Category(BaseShopEntity):
     category_count = 0
     product_count = 0
 
@@ -145,3 +170,26 @@ class Category:
         from src.iterator_product_in_category import CategoryProductIterator
 
         return CategoryProductIterator(self)
+
+
+class Order(BaseShopEntity):
+    def __init__(self, product, quantity):
+        if not isinstance(product, Product):
+            raise TypeError("Заказ должен содержать только объекты Product")
+
+        if not isinstance(quantity, int) or quantity <= 0:
+            raise ValueError(
+                "Количество товара в заказе должно быть положительным целым числом"
+            )
+
+        self.product = product
+        self.quantity = quantity
+        self.total_cost = product.price * quantity
+
+    def __str__(self):
+        """Строка информации о заказе"""
+        return (
+            f"Заказ: {self.product.name}"
+            f"Количество: {self.quantity} шт."
+            f"Итого: {self.total_cost} руб."
+        )

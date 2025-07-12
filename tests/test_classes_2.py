@@ -1,6 +1,6 @@
 import pytest
 
-from src.classes import Category, LawnGrass, Product, Smartphone
+from src.classes import Category, LawnGrass, Order, Product, Smartphone
 
 
 @pytest.fixture
@@ -129,3 +129,34 @@ def test_value_error_in_quntity(empty_category):
         match="Товар с нулевым или отрицательным количеством не может быть добавлен",
     ):
         category.add_product(p2)
+
+
+def test_add_order(product_category):
+    """Проверка работы класса Order"""
+    product, _ = product_category
+    sp1, _, _ = product
+
+    or1 = Order(sp1, 5)
+
+    assert or1.__str__() == (
+        "Заказ: Samsung Galaxy S25 Ultra",
+        "Количество: 5 шт.",
+        "Итого: 900000.0 руб."
+    )
+
+
+def test_error_mail_in_order(product_category):
+    """Тестирует возможные ощибки в Order"""
+    empty = Product("", "", 0, 0)
+
+    with pytest.raises(
+        TypeError, match="Заказ должен содержать только объекты Product"
+    ):
+        Order("Туда-сюда", "И милионер")
+
+    with pytest.raises(
+        ValueError,
+        match="Количество товара в заказе должно быть положительным целым числом",
+    ):
+        Order(empty, 0)
+        Order(empty, -5)
