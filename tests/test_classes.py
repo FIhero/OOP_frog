@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from src.classes import Category, Product
+from src.classes import Category, Product, ZeroQuantityError
 from src.load_json_file import load_file_from_json
 
 
@@ -104,7 +104,7 @@ def empty_category():
     [
         ("Клубника", "красная ягода", 250.0, 240),
         ("Гороховый суп", "со вкусом гороха", 300.0, 2),
-        ("", "", 0, 0),
+        ("", "", 0, 1),
     ],
 )
 def test_product(name, description, price, quantity):
@@ -181,7 +181,7 @@ def test_category_information_output(product_category):
     assert two.__str__() == ("Телевизоры, количество продуктов: 7 шт.")
 
 
-def test_add_product_merge_duplicate(product_category):
+def test_add_product_merge_duplicate(product_category, capsys):
     """Тестирует функцию add_product"""
     Category.product_count = 0
     product_list, _ = product_category
@@ -245,6 +245,71 @@ def test_type_error_in_add_product(empty_category):
         )
     assert len(category._Category__products) == 0
     assert Category.product_count == 0
+
+
+def test_add_product_creation_prints_messages(empty_category, capsys):
+    """Тестирует сообщения об ошибках в add_product"""
+
+    class OMG(Product):
+        def __init__(self, name, description, price, quantity):
+            super().__init__(name, description, price, quantity)
+
+            if hasattr(self, "quantity"):
+                self.quantity = -5
+
+    valid_product = Product("gugu", "gaga", 100, 10)
+    invalid = OMG("gugu", "gaga", 100, 5)
+
+    empty_category.add_product(valid_product)
+    captures = capsys.readouterr()
+    assert "Начинаем обработку добавления товара" in captures.out
+    assert "Товар gugu успешно добавлен" in captures.out
+    assert "Обработка добавления товара завершена" in captures.out
+    assert captures.err == ""
+
+    with pytest.raises(ZeroQuantityError):
+        empty_category.add_product(invalid)
+        captures = capsys.readouterr()
+        assert "Начинаем обработку добавления товара" in captures.out
+        assert (
+            "Ошибка добавления товара: Товар с нулевым или отрицательным количеством не может быть добавленным"
+            in captures.out
+        )
+        assert "Обработка добавления товара завершена" in captures.out
+        assert captures.err == ""
+
+    with pytest.raises(TypeError):
+        empty_category.add_product("Ох")
+        captures = capsys.readouterr()
+        assert "Начинаем обработку добавления товара" in captures.out
+        assert (
+            "Ошибка добавления товара: Можно добавлять только объекты класса Product или его наследников"
+            in captures.out
+        )
+        assert "Обработка добавления товара завершена" in captures.out
+        assert captures.err == ""
+
+
+def test_exception_error_prints_messages_add_product(empty_category, capsys):
+    """Тестирует ошибку Exception в add_product"""
+
+    class Milfa(Product):
+        def __init__(self, name, description, price, quantity):
+            super().__init__(name, description, price, quantity)
+
+            if hasattr(self, "_price"):
+                del self.name
+
+    pro = Milfa("ЛАлал", "kfkfk", 6, 3)
+    with pytest.raises(AttributeError) as excinfo:
+        empty_category.add_product(pro)
+        message = str(excinfo.value)
+        captures = capsys.readouterr()
+        assert "Начинаем обработку добавления товара" in captures.out
+        assert "Произошла непредвиденная ошибка при добавления товара:" in captures.out
+        assert message in captures.out
+        assert "Обработка добавления товара завершена" in captures.out
+        assert captures.err == ""
 
 
 def test_load_file_from_json_success(mocker, mock_json_data):
@@ -364,14 +429,15 @@ def test_price_list(name, description, price, quantity, expected, mail, capsys):
     else:
         assert "Создан объект класса: Product" in captured.out
         assert (
+            "Создан объект класса: Product\n"
             "Параметры: Позиционные: ('Российский Т-90', 'Лучший народный танк! Сделан в РОССИИ!', 2500000, 500), "
-            "Именнованные: {}" in captured.out
+            "Именованные: {}" in captured.out
         )
 
 
 def test_y_n_price(capsys, mocker):
     """
-    Проверка сообщений ответа на вопрос в сеттер
+    Проверка сообщений ответа на вопрос в сеттере
     (price.setter)
     """
     product = Product(

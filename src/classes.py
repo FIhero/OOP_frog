@@ -18,12 +18,15 @@ class CreationLogMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         print(f"Создан объект класса: {self.__class__.__name__}")
-        print(f"Параметры: Позиционные: {args}, Именнованные: {kwargs}\n")
+        print(f"Параметры: Позиционные: {args}, Именованные: {kwargs}\n")
 
 
 class Product(CreationLogMixin, BaseProduct):
     def __init__(self, name, description, price, quantity):
-        """Создаение атрибутов для данного класса"""
+        """Создание атрибутов для данного класса"""
+        if not isinstance(quantity, int) or quantity <= 0:
+            raise ValueError("Товар с нулевым количеством не может быть добавлен")
+
         super().__init__(name, description, price, quantity)
 
     @classmethod
@@ -42,6 +45,7 @@ class Product(CreationLogMixin, BaseProduct):
 
     @price.setter
     def price(self, new_price):
+        """Функция изменения цены"""
         if new_price <= 0:
             print("Цена не должна быть нулевая или отрицательная")
         elif self._price > new_price:
@@ -118,12 +122,21 @@ class BaseShopEntity(ABC):
         pass
 
 
+class ZeroQuantityError(ValueError):
+    def __init__(
+        self,
+        message="Товар с нулевым или отрицательным количеством не может быть добавленным",
+    ):
+        self.message = message
+        super().__init__(self.message)
+
+
 class Category(BaseShopEntity):
     category_count = 0
     product_count = 0
 
     def __init__(self, name, description, products):
-        """Создаение атрибутов для данного класса"""
+        """Создание атрибутов для данного класса"""
         self.name = name
         self.description = description
         self.__products = products
@@ -133,24 +146,46 @@ class Category(BaseShopEntity):
 
     def add_product(self, product):
         """Добавление продукта в категорию"""
-        if not isinstance(product, Product):
-            raise TypeError(
-                "Можно добавлять только объекты класса Product или его наследников"
-            )
+        print("Начинаем обработку добавления товара")
+        try:
+            if not isinstance(product, Product):
+                raise TypeError(
+                    "Можно добавлять только объекты класса Product или его наследников"
+                )
 
-        if product.quantity < 1:
-            raise ValueError(
-                "Товар с нулевым или отрицательным количеством не может быть добавлен"
-            )
+            if not isinstance(product.quantity, int) or product.quantity <= 0:
+                raise ZeroQuantityError(
+                    "Товар с нулевым или отрицательным количеством не может быть добавленным"
+                )
 
-        for product_ in self.__products:
-            if product_.name == product.name:
-                product_.quantity += product.quantity
-                product_.price = max(product_.price, product.price)
-                return
+            for product_ in self.__products:
+                if product_.name == product.name:
+                    product_.quantity += product.quantity
+                    product_.price = max(product_.price, product.price)
+                    print(f"Товар {product_.name} успешно обновлен")
+                    return
+            else:
+                self.__products.append(product)
+                Category.product_count += 1
+                print(f"Товар {product.name} успешно добавлен")
+
+        except ZeroQuantityError as e:
+            print(f"Ошибка добавления товара: {e.message}")
+            raise e
+
+        except TypeError as e:
+            print(f"Ошибка добавления товара: {e}")
+            raise e
+
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка при добавления товара: {e}")
+            raise e
+
         else:
-            self.__products.append(product)
-            Category.product_count += 1
+            pass
+
+        finally:
+            print("Обработка добавления товара завершена")
 
     def __str__(self):
         """Строка информации категории"""
@@ -158,6 +193,7 @@ class Category(BaseShopEntity):
         return f"{self.name}, количество продуктов: {total_quantity} шт."
 
     def get_total_stock_value(self):
+        """Считает стоимость всех товаров на складе"""
         if not self.__products:
             return 0
         current_total = 0
@@ -166,30 +202,66 @@ class Category(BaseShopEntity):
         return current_total
 
     def __iter__(self):
-        """Метод делает объекст Category итерируемым для CategoryProductIterator"""
+        """Метод делает объект Category итерируемым для CategoryProductIterator"""
         from src.iterator_product_in_category import CategoryProductIterator
 
         return CategoryProductIterator(self)
 
+    def average_price_of_goods(self):
+        """Считает среднюю цену товара"""
+        try:
+            total_sum = self.get_total_stock_value() / sum(
+                product.quantity for product in self.__products
+            )
+            return round(total_sum, 2)
+        except ZeroDivisionError:
+            return 0
+
 
 class Order(BaseShopEntity):
     def __init__(self, product, quantity):
-        if not isinstance(product, Product):
-            raise TypeError("Заказ должен содержать только объекты Product")
+        print("Начало обработки заказа")
+        try:
+            if not isinstance(product, Product):
+                raise TypeError("Заказ должен содержать только объекты Product")
 
-        if not isinstance(quantity, int) or quantity <= 0:
-            raise ValueError(
-                "Количество товара в заказе должно быть положительным целым числом"
-            )
+            if not isinstance(quantity, int) or quantity <= 0:
+                raise ZeroQuantityError(
+                    "Количество товара в заказе должно быть положительным целым числом"
+                )
 
-        self.product = product
-        self.quantity = quantity
-        self.total_cost = product.price * quantity
+            self.product = product
+            self.quantity = quantity
+            self.total_cost = product.price * quantity
+
+        except ZeroQuantityError as e:
+            print(f"Ошибка создания заказа: {e.message}")
+            self.quantity = 0
+            self.total_cost = 0
+            raise e
+
+        except TypeError as e:
+            print(f"Ошибка создания заказа: {e}")
+            self.quantity = 0
+            self.total_cost = 0
+            raise e
+
+        except Exception as e:
+            print(f"Произошла непредвиденная ошибка при создания заказа: {e}")
+            self.quantity = 0
+            self.total_cost = 0
+            raise e
+
+        else:
+            print("Заказ успешно создан")
+
+        finally:
+            print("Обработка создания заказа завершена")
 
     def __str__(self):
         """Строка информации о заказе"""
         return (
-            f"Заказ: {self.product.name}"
-            f"Количество: {self.quantity} шт."
-            f"Итого: {self.total_cost} руб."
+            f"Заказ: {self.product.name}",
+            f"Количество: {self.quantity} шт.",
+            f"Итого: {self.total_cost} руб.",
         )
